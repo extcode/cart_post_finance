@@ -1,0 +1,8 @@
+.build
+composer.lock
+
+.php_cs.cache
+.phplint.cache
+
+.DS_Store
+.idea

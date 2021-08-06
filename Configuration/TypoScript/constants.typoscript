@@ -1,0 +1,3 @@
+plugin.tx_cartpostfinance {
+    redirectTypeNum = 2278109
+}

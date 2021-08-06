@@ -1,0 +1,52 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Extcode\CartPostFinance\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Widgets/*'
+
+  Extcode\CartPostFinance\Controller\Order\PaymentController:
+    arguments:
+      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
+      $sessionHandler: '@Extcode\Cart\Service\SessionHandler'
+      $cartRepository: '@Extcode\Cart\Domain\Repository\CartRepository'
+      $paymentRepository: '@Extcode\Cart\Domain\Repository\Order\PaymentRepository'
+      $transactionRepository: '@Extcode\Cart\Domain\Repository\Order\TransactionRepository'
+
+  Extcode\CartPostFinance\EventListener\Order\Payment\ClearCart:
+    tags:
+      - name: event.listener
+        identifier: 'cart-post-finance--order--payment--clear-cart'
+        event: Extcode\Cart\Event\Order\PaymentEvent
+        before: 'cart-post-finance--order--payment--provider-redirect'
+
+  Extcode\CartPostFinance\EventListener\Order\Payment\ProviderRedirect:
+    arguments:
+      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+      $configurationManager: '@TYPO3\CMS\Extbase\Configuration\ConfigurationManager'
+      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
+      $typoScriptService: '@TYPO3\CMS\Core\TypoScript\TypoScriptService'
+      $sessionHandler: '@Extcode\Cart\Service\SessionHandler'
+      $cartRepository: '@Extcode\Cart\Domain\Repository\CartRepository'
+      $paymentRepository: '@Extcode\Cart\Domain\Repository\Order\PaymentRepository'
+    tags:
+      - name: event.listener
+        identifier: 'cart-post-finance--order--payment--provider-redirect'
+        event: Extcode\Cart\Event\Order\PaymentEvent
+
+  Extcode\CartPostFinance\EventListener\Order\Authorized\Email:
+    class: 'Extcode\Cart\EventListener\ProcessOrderCreate\Email'
+    tags:
+      - name: event.listener
+        identifier: 'cart-post-finance--order--authorized--email'
+        event: Extcode\CartPostFinance\Event\Order\AuthorizedEvent
+
+  Extcode\CartPostFinance\EventListener\Order\Fulfull\Email:
+    class: 'Extcode\Cart\EventListener\ProcessOrderCreate\Email'
+    tags:
+      - name: event.listener
+        identifier: 'cart-post-finance--order--fulfill--email'
+        event: Extcode\CartPostFinance\Event\Order\FulfillEvent
